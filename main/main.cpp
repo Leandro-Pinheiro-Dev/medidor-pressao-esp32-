@@ -12,22 +12,15 @@
 #include "cBMP280.h"
 #include "cSMP3011.h"
 
-<<<<<<< HEAD
 #define KPA_PSI -0.14503
-=======
-#define KPA_PSI 0.14503
->>>>>>> 5b96e33ceda1ef8877fec5081779451d39d22c52
 #define KPA_ATM 0.01
 #define PSI_BAR 0.06894
 #define PSI_ATM 0.068047
 #define PA_PSI 0.0001450
-<<<<<<< HEAD
 
 #define BASE_ATM 6.2
 // #define LV_FONT_CUSTOM_DECLARE CONFIG_LV_FONT_DECLARE(cousine_18)
 // LV_FONT_DECLARE(cousine_18)
-=======
->>>>>>> 5b96e33ceda1ef8877fec5081779451d39d22c52
 
 cbspI2C I2CChannel1;
 // cBMP280 BMP280;
@@ -41,34 +34,7 @@ int last_time = 0;
 
 // Inicializa variáveis dos sensores de pressão
 
-<<<<<<< HEAD
 float atm_pressure = 0, pressure_psi = 0, avg_pressure_bar = 0, avg_pressure = 0;
-=======
-float atm_pressure = 0, pressure_smp3011 = 0, pressure_smp3011_bar = 0, avg_pressure = 0;
-
-// extern void temp(lv_disp_t *disp);
-
-/*extern "C" void getTemp()
-{
-    lv_obj_t *scr = lv_disp_get_scr_act(disp);
-
-    float temp = BMP280.getTemperature();
-
-    lv_style_init(&estilo_fonte);
-
-    // Definição temperatura do BMP280 no display
-    static lv_style_t estilo_fonte;
-    lv_obj_t *labelBMP280Temp = lv_label_create(scr);
-    lv_label_set_long_mode(labelBMP280Temp, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_label_set_text(labelBMP280Temp, " ");
-    lv_obj_set_width(labelBMP280Temp, 128);
-    lv_obj_align(labelBMP280Temp, LV_ALIGN_TOP_MID, 0, 16);
-    lv_style_set_text_font(&estilo_fonte, &lv_font_montserrat_18);
-    lv_obj_add_style(labelBMP280Temp, &estilo_fonte, 0);
-    lv_label_set_text(labelBMP280Temp, "Temperatura: %6.2f\xb0\ C", temp);
-
-}*/
->>>>>>> 5b96e33ceda1ef8877fec5081779451d39d22c52
 
 extern "C" void updatePressure()
 {
