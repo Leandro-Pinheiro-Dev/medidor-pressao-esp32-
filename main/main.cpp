@@ -12,19 +12,18 @@
 #include "cBMP280.h"
 #include "cSMP3011.h"
 
-#define KPA_PSI 0.14503
-<<<<<<< HEAD
+#define KPA_PSI -0.14503
 #define KPA_ATM 0.01
 #define PSI_BAR 0.06894
 #define PSI_ATM 0.068047
 #define PA_PSI 0.0001450
-=======
-#define PSI_BAR 0.06894
-#define PSI_ATM 0.06804
->>>>>>> eadfd2fa953d37aba28f7d18cf516b63dcb82745
+
+#define BASE_ATM 6.2
+// #define LV_FONT_CUSTOM_DECLARE CONFIG_LV_FONT_DECLARE(cousine_18)
+// LV_FONT_DECLARE(cousine_18)
 
 cbspI2C I2CChannel1;
-cBMP280 BMP280;
+// cBMP280 BMP280;
 cSMP3011 SMP3011;
 
 // esp_adc_cal_characteristics_t adc1_chars;
@@ -33,86 +32,39 @@ cSMP3011 SMP3011;
 int time_offset = esp_timer_get_time() * 1000;
 int last_time = 0;
 
-
 // Inicializa variáveis dos sensores de pressão
 
-<<<<<<< HEAD
-float atm_pressure = 0, pressure_smp3011 = 0, pressure_smp3011_bar = 0, avg_pressure = 0;
-=======
-float pressure_atm = 0, pressure_smp3011 = 0, pressure_smp3011_bar = 0, avg_pressure = 0;
->>>>>>> eadfd2fa953d37aba28f7d18cf516b63dcb82745
-
-//extern void temp(lv_disp_t *disp);
-
-/*extern "C" void getTemp()
-{
-    lv_obj_t *scr = lv_disp_get_scr_act(disp);
-
-    float temp = BMP280.getTemperature();
-
-    lv_style_init(&estilo_fonte);
-
-    // Definição temperatura do BMP280 no display
-    static lv_style_t estilo_fonte;
-    lv_obj_t *labelBMP280Temp = lv_label_create(scr);
-    lv_label_set_long_mode(labelBMP280Temp, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_label_set_text(labelBMP280Temp, " ");
-    lv_obj_set_width(labelBMP280Temp, 128);
-    lv_obj_align(labelBMP280Temp, LV_ALIGN_TOP_MID, 0, 16);
-    lv_style_set_text_font(&estilo_fonte, &lv_font_montserrat_18);
-    lv_obj_add_style(labelBMP280Temp, &estilo_fonte, 0);
-    lv_label_set_text(labelBMP280Temp, "Temperatura: %6.2f\xb0\ C", temp);
-
-}*/
+float atm_pressure = 0, pressure_psi = 0, avg_pressure_bar = 0, avg_pressure = 0;
 
 extern "C" void updatePressure()
 {
     int i = 0;
 
-<<<<<<< HEAD
-    pressure_smp3011 = (SMP3011.getPressure() * -1) * KPA_PSI;
-    // atm_pressure = pressure_smp3011 * PSI_ATM;
-    atm_pressure = (BMP280.getPressure() * PA_PSI) * PSI_ATM;
+    pressure_psi = SMP3011.getPressure() * KPA_PSI;
+    atm_pressure = pressure_psi * PSI_ATM;
 
-    // Verifica se houve alguma alteração na pressão do ambiente através do smp3011
-=======
-    pressure_smp3011 = (SMP3011.getPressure()) * KPA_PSI;
-    pressure_atm = pressure_smp3011 * PSI_ATM;
->>>>>>> eadfd2fa953d37aba28f7d18cf516b63dcb82745
-
-    // Caso haja, calcula a pressão interna do pneu
+    // Caso haja pressão atmosférica maior, calcula a pressão interna do pneu
     //  Caso contrário, o valor de pressão padrão será zero
-<<<<<<< HEAD
-
-    // Num ambiente aberto, a pressão do smp3011 equivale a 6atm, sendo que este será o ponto de
-    // partida para as medições
-
-    // Também pode ser feito com o bmp280, mas requer uma câmara acima do sensor, de forma que
-    // receba ar constantemente para fazer as medições precisamente
-    if (atm_pressure > 1)
+    if (atm_pressure > BASE_ATM)
     {
-=======
-    //if (pressure_atm > 1)
-    //{
->>>>>>> eadfd2fa953d37aba28f7d18cf516b63dcb82745
         // Realiza 5 leituras por segundo e some ao valor anterior
         while (i <= 5)
         {
             if ((time_offset - last_time) >= 200)
             {
                 last_time = time_offset;
-                pressure_smp3011 += pressure_smp3011;
+                pressure_psi += pressure_psi;
             }
             i += 1;
         }
-    //}
-    /*else
-    {
+    }
+    /*else if (atm_pressure <= 6.2)         // Este bloco condicional foi jogado para o loop infinito
+    {                                       // do 'while(true), já que não funcionava como esperado
         avg_pressure = 0;
     }*/
 
-    avg_pressure = pressure_smp3011 / 5;
-    pressure_smp3011_bar = avg_pressure * PSI_BAR;
+    avg_pressure = pressure_psi / 5;
+    avg_pressure_bar = avg_pressure * PSI_BAR;
 }
 
 extern "C" void app_main()
@@ -124,28 +76,19 @@ extern "C" void app_main()
     I2CChannel1.init(I2C_NUM_1, GPIO_NUM_33, GPIO_NUM_32);
     I2CChannel1.openAsMaster(100000);
 
-    BMP280.init(I2CChannel1);
+    // BMP280.init(I2CChannel1);
     SMP3011.init(I2CChannel1);
 
-    float temp = BMP280.getTemperature();
-
+    // float temp = BMP280.getTemperature();
     lvgl_port_lock(0);
 
-    // float temp = BMP280.getTemperature();
-
     lv_obj_t *scr = lv_disp_get_scr_act(nullptr);
-
     static lv_style_t estilo_fonte;
     lv_style_init(&estilo_fonte);
 
     // Definição temperatura do BMP280 no display
-<<<<<<< HEAD
     // lv_obj_t *labelBMP280Temp = lv_label_create(scr);
     /*lv_label_set_long_mode(labelBMP280Temp, LV_LABEL_LONG_SCROLL_CIRCULAR);
-=======
-    lv_obj_t *labelBMP280Temp = lv_label_create(scr);
-    lv_label_set_long_mode(labelBMP280Temp, LV_LABEL_LONG_SCROLL_CIRCULAR);
->>>>>>> eadfd2fa953d37aba28f7d18cf516b63dcb82745
     lv_label_set_text_fmt(labelBMP280Temp, "%6.0f", temp);
     lv_obj_set_width(labelBMP280Temp, 128);
     lv_obj_align(labelBMP280Temp, LV_ALIGN_TOP_MID, 0, 16);
@@ -157,37 +100,73 @@ extern "C" void app_main()
     lv_label_set_long_mode(labelSMP3011Press, LV_LABEL_LONG_SCROLL_CIRCULAR);
     lv_label_set_text(labelSMP3011Press, " ");
     lv_obj_set_width(labelSMP3011Press, 128);
-    lv_obj_align(labelSMP3011Press, LV_ALIGN_TOP_MID, 10, 12);
-    lv_style_set_text_font(&estilo_fonte, &lv_font_montserrat_16);
+    lv_obj_align(labelSMP3011Press, LV_ALIGN_TOP_LEFT, 2, 0);
+    lv_style_set_text_font(&estilo_fonte, &lv_font_montserrat_18);
     lv_obj_add_style(labelSMP3011Press, &estilo_fonte, 0);
+
+    // Definição dos avisos quanto à pressão
+    lv_obj_t *labelPressWarn = lv_label_create(scr);
+    lv_label_set_long_mode(labelPressWarn, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_label_set_text(labelPressWarn, " ");
+    lv_obj_set_width(labelPressWarn, 128);
+    lv_obj_align(labelPressWarn, LV_ALIGN_BOTTOM_LEFT, 2, 2);
+    /*lv_style_set_text_font(&estilo_fonte, &lv_font_montserrat_12);
+    lv_obj_add_style(labelPressWarn, &estilo_fonte, 0);*/
 
     lvgl_port_unlock();
 
-    while(true)
+    for (;;)
     {
-        BMP280.poll();
+        // BMP280.poll();
         SMP3011.poll();
 
         updatePressure();
 
-<<<<<<< HEAD
+        // Zera os valores ao ligar, calculando a partir da pressão do ambiente
+        // Deve haver alguma maneira mais enxuta de fazer isso, mas o que foi tentado, não funcionou
+        if (atm_pressure <= BASE_ATM)
+        {
+            avg_pressure = 0;
+            avg_pressure_bar = 0;
+        }
+
         printf("\nPressão: %6.2fpsi --- %6.2fbar -- \nATM: %6.2f", avg_pressure,
-               pressure_smp3011_bar, atm_pressure);
+               avg_pressure_bar, atm_pressure);
 
         lvgl_port_lock(0);
         // Para inserção de caractéres especiais, utilize "\hex\"
-        lv_label_set_text_fmt(labelSMP3011Press, "%6.2f psi\n %6.2f bar", avg_pressure, pressure_smp3011_bar);
+        lv_label_set_text_fmt(labelSMP3011Press, "%6.0f psi\n %6.0f bar", avg_pressure, avg_pressure_bar);
         // lv_label_set_text_fmt(labelBMP280Temp, "%6.2f\xb0\ C", temp); // exibição da temperatura
-=======
 
-        printf("\nPressão: %6.2fpsi --- %6.2fbar", avg_pressure, pressure_smp3011_bar);
+        // Avisa se a pressão dos pneus é ou não adequada
+        if (avg_pressure > 32 && avg_pressure <= 40)
+        {
+            lv_label_set_text_fmt(labelPressWarn, "Pressao adequada para o veiculo");
+        }
+        else if (avg_pressure <= 32 && avg_pressure > 27)
+        {
+            lv_label_set_text_fmt(labelPressWarn, "Pressao intermediaria, calibragem recomendada");
+        }
+        else if (avg_pressure <= 27)
+        {
+            lv_label_set_text_fmt(labelPressWarn, "Pressao baixa, calibragem necessaria");
+        }
+        /*switch (avg_pressure)
+        {
+        case 32 ... 38:
+            lv_label_set_text_fmt(labelPressWarn, "Pressao adequada para o veiculo");
+            break;
+        case 27 ... 31:
+            lv_label_set_text_fmt(labelPressWarn, "Pressao intermediaria, calibragem recomendada");
+            break;
+        case 0 ... 26:
+            lv_label_set_text_fmt(labelPressWarn, "Pressao baixa, calibragem necessaria");
+            break;
+        default:
+            lv_label_set_text_fmt(labelPressWarn, "Pressao acima do ideal, calibragem necessaria");
+            break;
+        }*/
 
-        lvgl_port_lock(0);
-        // Para inserção de caractéres especiais, utilize "\hex\"
-        lv_label_set_text_fmt(labelSMP3011Press, "%6.0f psi", avg_pressure);
-        //lv_label_set_text_fmt(labelSMP3011Press, "%6.2fbar", pressure_smp3011_bar);
-        
->>>>>>> eadfd2fa953d37aba28f7d18cf516b63dcb82745
         lvgl_port_unlock();
 
         vTaskDelay(pdMS_TO_TICKS(1000));
