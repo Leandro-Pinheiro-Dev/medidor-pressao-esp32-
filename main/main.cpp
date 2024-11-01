@@ -86,15 +86,6 @@ extern "C" void app_main()
     static lv_style_t estilo_fonte;
     lv_style_init(&estilo_fonte);
 
-    // Definição temperatura do BMP280 no display
-    // lv_obj_t *labelBMP280Temp = lv_label_create(scr);
-    /*lv_label_set_long_mode(labelBMP280Temp, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_label_set_text_fmt(labelBMP280Temp, "%6.0f", temp);
-    lv_obj_set_width(labelBMP280Temp, 128);
-    lv_obj_align(labelBMP280Temp, LV_ALIGN_TOP_MID, 0, 16);
-    lv_style_set_text_font(&estilo_fonte, &lv_font_montserrat_16);
-    lv_obj_add_style(labelBMP280Temp, &estilo_fonte, 0);*/
-
     // Definição do SMP3011 no display
     lv_obj_t *labelSMP3011Press = lv_label_create(scr);
     lv_label_set_long_mode(labelSMP3011Press, LV_LABEL_LONG_SCROLL_CIRCULAR);
