@@ -3,7 +3,7 @@
 .vscode/
 build/
 # ignora arquivos de configuração desnecessários
-sdkconfig
-sdkconfig.defaults
-sdkconfig.old
+main/sdkconfig
+main/sdkconfig.defaults
+main/sdkconfig.old
 main/lvgl_demo_ui.cpp
