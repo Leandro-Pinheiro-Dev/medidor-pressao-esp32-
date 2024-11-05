@@ -31,40 +31,48 @@ cSMP3011 SMP3011;
 // Recebe o tempo atual
 int time_offset = esp_timer_get_time() * 1000;
 int last_time = 0;
+int last_time2 = 0;
+
+uint16_t press_tskPRIORITY = 2;
+uint16_t press_tskSIZE = 1536;
 
 // Inicializa variáveis dos sensores de pressão
 
-float atm_pressure = 0, pressure_psi = 0, avg_pressure_bar = 0, avg_pressure = 0;
+float atm_pressure = 0, pressure_psi = 0, avg_pressure = 0, avg_pressure_bar = avg_pressure * PSI_BAR;
 
-extern "C" void updatePressure()
+extern "C" void readPressure(void *pvParameters)
 {
+    configASSERT(((uint32_t)pvParameters) == 1);
+
     int i = 0;
 
-    pressure_psi = SMP3011.getPressure() * KPA_PSI;
-    atm_pressure = pressure_psi * PSI_ATM;
-
-    // Caso haja pressão atmosférica maior, calcula a pressão interna do pneu
-    //  Caso contrário, o valor de pressão padrão será zero
-    if (atm_pressure > BASE_ATM)
+    for (;;)
     {
-        // Realiza 5 leituras por segundo e some ao valor anterior
-        while (i <= 5)
-        {
-            if ((time_offset - last_time) >= 200)
-            {
-                last_time = time_offset;
-                pressure_psi += pressure_psi;
-            }
-            i += 1;
-        }
-    }
-    /*else if (atm_pressure <= 6.2)         // Este bloco condicional foi jogado para o loop infinito
-    {                                       // do 'while(true), já que não funcionava como esperado
-        avg_pressure = 0;
-    }*/
+        pressure_psi = SMP3011.getPressure() * KPA_PSI;
+        atm_pressure = pressure_psi * PSI_ATM;
 
-    avg_pressure = pressure_psi / 5;
-    avg_pressure_bar = avg_pressure * PSI_BAR;
+        // Caso haja pressão atmosférica maior, calcula a pressão interna do pneu
+        //  Caso contrário, o valor de pressão padrão será zero
+        if (atm_pressure > BASE_ATM)
+        {
+            // Realiza 5 leituras por segundo e some ao valor anterior
+            while (i <= 5)
+            {
+                if ((time_offset - last_time) >= 200)
+                {
+                    last_time = time_offset;
+                    pressure_psi += pressure_psi;
+                }
+                i += 1;
+            }
+        }
+        /*else if (atm_pressure <= 6.2)         // Este bloco condicional foi jogado para o loop infinito
+        {                                       // do 'while(true), já que não funcionava como esperado
+            avg_pressure = 0;
+        }*/
+
+        avg_pressure = pressure_psi / 5;
+    }
 }
 
 extern "C" void app_main()
@@ -78,6 +86,8 @@ extern "C" void app_main()
 
     // BMP280.init(I2CChannel1);
     SMP3011.init(I2CChannel1);
+
+    xTaskCreate(readPressure, "read_pressure", press_tskSIZE, NULL, press_tskPRIORITY, NULL);
 
     // float temp = BMP280.getTemperature();
     lvgl_port_lock(0);
@@ -111,14 +121,11 @@ extern "C" void app_main()
         // BMP280.poll();
         SMP3011.poll();
 
-        updatePressure();
-
         // Zera os valores ao ligar, calculando a partir da pressão do ambiente
         // Deve haver alguma maneira mais enxuta de fazer isso, mas o que foi tentado, não funcionou
         if (atm_pressure <= BASE_ATM)
         {
             avg_pressure = 0;
-            avg_pressure_bar = 0;
         }
 
         printf("\nPressão: %6.2fpsi --- %6.2fbar -- \nATM: %6.2f", avg_pressure,
@@ -126,7 +133,15 @@ extern "C" void app_main()
 
         lvgl_port_lock(0);
         // Para inserção de caractéres especiais, utilize "\hex\"
-        lv_label_set_text_fmt(labelSMP3011Press, "%6.0f psi\n %6.0f bar", avg_pressure, avg_pressure_bar);
+        
+        if (avg_pressure > 0)
+        {
+            if ((time_offset - last_time2) >= 6000)
+            {
+                last_time2 = time_offset;
+                lv_label_set_text_fmt(labelSMP3011Press, "%6.0f psi\n %6.0f bar", avg_pressure, avg_pressure_bar);
+            }
+        }
         // lv_label_set_text_fmt(labelBMP280Temp, "%6.2f\xb0\ C", temp); // exibição da temperatura
 
         // Avisa se a pressão dos pneus é ou não adequada
