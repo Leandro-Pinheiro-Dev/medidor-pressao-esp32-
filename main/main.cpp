@@ -145,7 +145,7 @@ extern "C" void app_main()
 
         if (avg_pressure > 0)
         {
-            if ((time_offset - last_time2) >= 6000)
+            if ((time_offset - last_time2) >= 30000)
             {
                 last_time2 = time_offset;
                 lv_label_set_text_fmt(labelSMP3011Press, "%6.0f psi\n %6.0f bar", avg_pressure, avg_pressure_bar);
