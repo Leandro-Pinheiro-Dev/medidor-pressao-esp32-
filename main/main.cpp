@@ -34,20 +34,25 @@ int last_time = 0;
 int last_time2 = 0;
 
 uint16_t press_tskPRIORITY = 2;
-uint16_t press_tskSIZE = 1536;
+uint16_t press_tskSIZE = 2048;
+
+uint16_t display_tskPRIORITY = 3;
+uint16_t display_tskSIZE = 2048;
 
 // Inicializa variáveis dos sensores de pressão
 
 float atm_pressure = 0, pressure_psi = 0, avg_pressure = 0, avg_pressure_bar = avg_pressure * PSI_BAR;
 
-extern "C" void readPressure(void *pvParameters)
+extern "C" void readPressure(void *params)
 {
-    configASSERT(((uint32_t)pvParameters) == 1);
+    configASSERT(((uint32_t)params) == 1);
 
     int i = 0;
 
     for (;;)
     {
+        SMP3011.poll();
+
         pressure_psi = SMP3011.getPressure() * KPA_PSI;
         atm_pressure = pressure_psi * PSI_ATM;
 
@@ -75,6 +80,11 @@ extern "C" void readPressure(void *pvParameters)
     }
 }
 
+/*extern "C" void displayHandler(void *pvParameters)
+{
+
+}
+*/
 extern "C" void app_main()
 {
     esp_timer_early_init();
@@ -87,7 +97,7 @@ extern "C" void app_main()
     // BMP280.init(I2CChannel1);
     SMP3011.init(I2CChannel1);
 
-    xTaskCreate(readPressure, "read_pressure", press_tskSIZE, NULL, press_tskPRIORITY, NULL);
+    xTaskCreate(readPressure, "read_pressure", configMINIMAL_STACK_SIZE, (void *)1, press_tskPRIORITY, NULL);
 
     // float temp = BMP280.getTemperature();
     lvgl_port_lock(0);
@@ -119,7 +129,6 @@ extern "C" void app_main()
     for (;;)
     {
         // BMP280.poll();
-        SMP3011.poll();
 
         // Zera os valores ao ligar, calculando a partir da pressão do ambiente
         // Deve haver alguma maneira mais enxuta de fazer isso, mas o que foi tentado, não funcionou
@@ -133,7 +142,7 @@ extern "C" void app_main()
 
         lvgl_port_lock(0);
         // Para inserção de caractéres especiais, utilize "\hex\"
-        
+
         if (avg_pressure > 0)
         {
             if ((time_offset - last_time2) >= 6000)
@@ -141,6 +150,10 @@ extern "C" void app_main()
                 last_time2 = time_offset;
                 lv_label_set_text_fmt(labelSMP3011Press, "%6.0f psi\n %6.0f bar", avg_pressure, avg_pressure_bar);
             }
+        }
+        else
+        {
+            lv_label_set_text_fmt(labelSMP3011Press, "0 psi");
         }
         // lv_label_set_text_fmt(labelBMP280Temp, "%6.2f\xb0\ C", temp); // exibição da temperatura
 
