@@ -14,4 +14,7 @@ Para carregar o software para a placa ESP32:
 
 - Na aba da extensão do IDF, selectione `Set Espressif Target`;
 - Selecione a primeira opção, `esp32`;
-- Selecione a última opção, `Custom board`.
+- Depois, selecione a última opção, `Custom board`;
+- Ainda na aba da extensão, selecione a opção "Build" para compilar o código;
+- E por fim, selecione a opção "Flash".
+
