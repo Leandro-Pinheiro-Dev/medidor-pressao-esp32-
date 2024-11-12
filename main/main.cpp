@@ -41,7 +41,7 @@ uint16_t display_tskSIZE = 4096;
 
 // Inicializa variáveis dos sensores de pressão
 
-float raw_value = 0, voltage = 0, atm_pressure = 0, pressure_psi = 0, avg_pressure = 0, avg_pressure_bar = 0;
+float raw_value = 0, voltage = 0, raw_press = 0, atm_pressure = 0, pressure_psi = 0, avg_pressure = 0, avg_pressure_bar = 0;
 
 extern "C" void readPressure(void *params)
 {
@@ -55,7 +55,10 @@ extern "C" void readPressure(void *params)
 
         raw_value = SMP3011.getPressure();
         voltage = raw_value * (3.3 / 4095);
-        pressure_psi = (voltage - 0.33) * (100.0 / 3.3 - 0.33);
+        pressure_psi = (voltage - 0.45) * (100.0 / 3.3 - 0.45);
+        //pressure_psi = ((raw_value - 1843.2) * 20000) / (13516.8 - 1843.2);
+        //pressure_psi = ((raw_value - 7372.8) * 20000) / (13516.8 - 7372.8);
+        //pressure_psi = raw_press * 0.0145;
         atm_pressure = pressure_psi * PSI_ATM;
 
         // Caso haja pressão atmosférica maior, calcula a pressão interna do pneu
@@ -127,8 +130,8 @@ extern "C" void displayHandler(void *params)
             avg_pressure_bar = 0;
         }
 
-        printf("\nPressão: %6.2fpsi --- %6.2fbar -- \nATM: %6.2f", avg_pressure,
-               avg_pressure_bar, atm_pressure);
+        printf("\nPressão: %6.2fpsi -- %6.2fbar\nATM: %6.2f\nRaw Value: %6.2f\nTensao: %6.2f\n-----", avg_pressure,
+               avg_pressure_bar, atm_pressure, raw_value, voltage);
 
         lvgl_port_lock(0);
         // Para inserção de caractéres especiais, utilize "\hex\"
