@@ -16,7 +16,7 @@
 #define KPA_ATM 0.01
 #define PSI_BAR 0.06894
 #define PSI_ATM 0.068047
-#define PA_PSI 0.0001450
+#define PA_PSI 0.001450
 
 #define BASE_ATM 1.0
 // #define LV_FONT_CUSTOM_DECLARE CONFIG_LV_FONT_DECLARE(cousine_18)
@@ -54,11 +54,12 @@ extern "C" void readPressure(void *params)
         SMP3011.poll();
 
         raw_value = SMP3011.getPressure();
-        voltage = raw_value * (3.3 / 4095);
+        /*voltage = raw_value * (3.3 / 4095);
         pressure_psi = (voltage - 0.45) * (100.0 / 3.3 - 0.45);
         //pressure_psi = ((raw_value - 1843.2) * 20000) / (13516.8 - 1843.2);
         //pressure_psi = ((raw_value - 7372.8) * 20000) / (13516.8 - 7372.8);
-        //pressure_psi = raw_press * 0.0145;
+        //pressure_psi = raw_press * 0.0145;*/
+        pressure_psi = raw_value * PA_PSI;
         atm_pressure = pressure_psi * PSI_ATM;
 
         // Caso haja pressão atmosférica maior, calcula a pressão interna do pneu
