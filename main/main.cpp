@@ -105,7 +105,7 @@ extern "C" void displayHandler(void *params)
     lv_label_set_text(labelSMP3011Press, " ");
     lv_obj_set_width(labelSMP3011Press, 128);
     lv_obj_align(labelSMP3011Press, LV_ALIGN_TOP_LEFT, 2, 0);
-    lv_style_set_text_font(&estilo_fonte, &lv_font_montserrat_18);
+    lv_style_set_text_font(&estilo_fonte, &lv_font_montserrat_22);
     lv_obj_add_style(labelSMP3011Press, &estilo_fonte, 0);
 
     // Definição dos avisos quanto à pressão
@@ -114,8 +114,8 @@ extern "C" void displayHandler(void *params)
     lv_label_set_text(labelPressWarn, " ");
     lv_obj_set_width(labelPressWarn, 128);
     lv_obj_align(labelPressWarn, LV_ALIGN_BOTTOM_LEFT, 2, 2);
-    /*lv_style_set_text_font(&estilo_fonte, &lv_font_montserrat_12);
-    lv_obj_add_style(labelPressWarn, &estilo_fonte, 0);*/
+    lv_style_set_text_font(&estilo_fonte, &lv_font_montserrat_20);
+    lv_obj_add_style(labelPressWarn, &estilo_fonte, 0);
 
     lvgl_port_unlock();
 
@@ -151,15 +151,15 @@ extern "C" void displayHandler(void *params)
         // Avisa se a pressão dos pneus é ou não adequada
         if (avg_pressure > 32 && avg_pressure <= 40)
         {
-            lv_label_set_text_fmt(labelPressWarn, "Pressao adequada para o veiculo");
+            lv_label_set_text_fmt(labelPressWarn, "Pressao adequada!");
         }
         else if (avg_pressure <= 32 && avg_pressure > 27)
         {
-            lv_label_set_text_fmt(labelPressWarn, "Pressao intermediaria, calibragem recomendada");
+            lv_label_set_text_fmt(labelPressWarn, "Calibragem recomendada");
         }
         else if (avg_pressure <= 27)
         {
-            lv_label_set_text_fmt(labelPressWarn, "Pressao baixa, calibragem necessaria");
+            lv_label_set_text_fmt(labelPressWarn, "Calibragem necessaria");
         }
         /*switch (avg_pressure)
         {
