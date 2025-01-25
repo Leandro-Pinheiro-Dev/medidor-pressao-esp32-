@@ -1,7 +1,8 @@
 # Medidor de pressão utilizando uma Lilygo TTGO ESP32 com display OLED integrado
 
-Medidor de pressão utilizando uma Lilygo TTGO ESP32 com display OLED integrado e sensores BMP280, de temperatura e pressão barométrica, e SMP3011, de pressão.
+Projeto desenvolvido em parceria entre a Fatec Tecnologia em Sistemas Embarcados e a empresa TEX, localizada em Itupeva. Este trabalho foi realizado por um grupo de alunos no contexto acadêmico, com o objetivo de implementar um sistema de medição de pressão utilizando a placa Lilygo TTGO ESP32 com display OLED integrado.
 
+O sistema incorpora os sensores BMP280 (temperatura e pressão barométrica) e SMP3011 (pressão), permitindo leituras precisas e exibição em tempo real no display.
 # Antes de começar
 
 - O código foi projetado para a IDE ESP-IDF - que depende do Python - no Visual Studio Code, e utilizando-se do CMake junto às C++ Build Tools do Visual Studio 2019, portanto, todos estes serão necessários para a compilação;
@@ -37,4 +38,5 @@ Para carregar o software para a placa ESP32:
 - E por fim, selecione a opção `Flash` - *não se esqueça de segurar o botão 'boot' em sua placa ESP32 ao início do processo de flash, quando aparecer a mensagem `Connecting...`.
 - ![image](https://github.com/user-attachments/assets/ebb47c55-2518-4132-adf2-996feb566a0c)
 
+Este projeto reflete a aplicação prática dos conhecimentos adquiridos pelos alunos da Fatec e reforça a colaboração com a empresa TEX, unindo teoria e prática para solucionar problemas reais.
 
